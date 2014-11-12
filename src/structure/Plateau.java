@@ -52,15 +52,7 @@ public class Plateau {
         cases.put(p, c);
     }
 
-    /**
-     * Supprime une case du plateau
-     *
-     * @param p
-     * @return
-     */
-    public Case supprimerCase(Position p) {
-        Case c = cases.get(p);
-        cases.remove(p);
-        return c;
+    public boolean isGameEnded() {
+        return false;
     }
 }
