@@ -1,12 +1,15 @@
 package vue;
 
-import application.Manager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 import javax.swing.JMenuItem;
+
 import player.PlayerHuman;
 import structure.CaseBlanche;
 import structure.CaseNoire;
+import application.Manager;
 
 public class Controller implements ActionListener {
 
@@ -32,6 +35,11 @@ public class Controller implements ActionListener {
                     manager.stop();
                     break;
             }
+        }
+        
+        if (ae.getSource() instanceof JButton) {
+        	JButton jbu = (JButton) ae.getSource();
+        	jbu.setBackground(null);
         }
     }
 }
