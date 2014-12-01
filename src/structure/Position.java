@@ -1,6 +1,6 @@
 package structure;
 
-public class Position {
+public class Position implements Comparable<Position> {
 
     private int x;
     private int y;
@@ -32,6 +32,23 @@ public class Position {
         return false;
     }
 
+    @Override
+    public int compareTo(Position t) {        
+        if(getX() == t.getX()) {
+            if(getY() < t.getY()) {
+                return -1;
+            } else if(getY() > t.getY()) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else if (getX() < t.getX()) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+    
     @Override
     public int hashCode() {
         int hash = 5;

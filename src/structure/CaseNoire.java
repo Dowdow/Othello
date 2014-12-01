@@ -1,10 +1,17 @@
 package structure;
 
+import java.awt.Color;
+
 public class CaseNoire extends Case {
 
     @Override
-    public String getCouleur() {
-        return CASE_NOIRE;
+    public Color getCouleur() {
+        return Color.BLACK;
+    }
+
+    @Override
+    public boolean isClickable() {
+        return false;
     }
 
 }

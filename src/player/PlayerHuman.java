@@ -1,8 +1,7 @@
 package player;
 
+import java.util.Observable;
 import structure.Case;
-import structure.Plateau;
-import structure.Position;
 
 public class PlayerHuman extends Player {
 
@@ -11,8 +10,11 @@ public class PlayerHuman extends Player {
     }
 
     @Override
-    public Position jouer(Plateau p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void update(Observable obs, Object obj) {
+        if(!isPlayerTurn(obj)) {
+            return;
+        }
+        casesAvailable(null);
     }
     
 }

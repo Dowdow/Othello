@@ -3,43 +3,49 @@ package vue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
-import player.PlayerHuman;
-import structure.CaseBlanche;
-import structure.CaseNoire;
 import application.Manager;
+import java.util.Observer;
+import player.Player;
+import structure.Position;
 
 public class Controller implements ActionListener {
 
     private Manager manager;
 
-    public Controller(Window window) {
-        manager = new Manager(new PlayerHuman(new CaseNoire()), new PlayerHuman(new CaseBlanche()));
-        manager.addObserver(window);
+    private Player player1;
+    private Player player2;
+
+    public Controller(Observer o) {
+        manager = new Manager();
+        manager.addObserver(o);
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() instanceof JMenuItem) {
             JMenuItem jmi = (JMenuItem) ae.getSource();
-            switch (jmi.getText()) {
-                case "Quitter":
+            switch (jmi.getActionCommand()) {
+                case "quit":
                     manager.quitter();
                     break;
-                case "Lancer":
+                case "start":
                     manager.start();
                     break;
-                case "Stopper":
+                case "stop":
                     manager.stop();
                     break;
             }
         }
-        
-        if (ae.getSource() instanceof JButton) {
-        	JButton jbu = (JButton) ae.getSource();
-        	jbu.setBackground(null);
+
+        if (ae.getSource() instanceof JButtonPosition) {
+            JButtonPosition jbu = (JButtonPosition) ae.getSource();
+            manager.jouer(new Position(jbu.getPositionX(), jbu.getPositionY()));
         }
+    }
+    
+    public void getBoard() {
+        manager.getBoard();
     }
 }
