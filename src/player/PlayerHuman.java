@@ -1,7 +1,7 @@
 package player;
 
-import java.util.Observable;
 import structure.Case;
+import structure.Plateau;
 
 public class PlayerHuman extends Player {
 
@@ -10,11 +10,10 @@ public class PlayerHuman extends Player {
     }
 
     @Override
-    public void update(Observable obs, Object obj) {
-        if(!isPlayerTurn(obj)) {
-            return;
-        }
-        casesAvailable(null);
+    public void jouer(Plateau p) {
+        casesAvailable(p);
+        setChanged();
+        notifyObservers("refresh");
     }
     
 }

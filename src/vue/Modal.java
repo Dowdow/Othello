@@ -3,9 +3,9 @@ package vue;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -13,13 +13,13 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
 public class Modal extends JDialog {
-    
+       
     private JLabel lb1, lb2;
     private JSpinner sp1, sp2;
     private JButton bt;
     
-    public Modal(JFrame parent) {
-        super(parent);
+    public Modal(Window parent) {
+        super(parent, "Paramètres du plateau");
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setMinimumSize(new Dimension(200, 150));
         this.setLocationRelativeTo(parent);
@@ -31,12 +31,13 @@ public class Modal extends JDialog {
         lb1 = new JLabel("Hauteur");
         lb2 = new JLabel("Largeur");
         
-        SpinnerModel model1 = new SpinnerNumberModel(8, 8, 20, 1);
+        SpinnerModel model1 = new SpinnerNumberModel(8, 8, 20, 2);
         sp1 = new JSpinner(model1);
-        SpinnerModel model2 = new SpinnerNumberModel(8, 8, 20, 1);
+        SpinnerModel model2 = new SpinnerNumberModel(8, 8, 20, 2);
         sp2 = new JSpinner(model2);
         
         bt = new JButton("Valider");
+        bt.setActionCommand("modal");
     }
     
     private void place() {
@@ -56,4 +57,15 @@ public class Modal extends JDialog {
         this.getContentPane().add(bt);
     }
     
+    public void addValidateListener(ActionListener al) {
+        bt.addActionListener(al);
+    }
+    
+    public int getSp1Value() {
+        return (int) sp1.getValue();
+    }
+    
+    public int getSp2Value() {
+        return (int) sp2.getValue();
+    }    
 }
