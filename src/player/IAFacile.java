@@ -1,7 +1,11 @@
 package player;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import structure.Case;
+import structure.CaseDisponible;
 import structure.Plateau;
 import structure.Position;
 
@@ -13,10 +17,19 @@ public class IAFacile extends PlayerIA {
 
     @Override
     public void jouer(Plateau p) {
-        casesAvailable(p);
+        List<Position> list = new ArrayList<>();
         Random rand = new Random();
+
+        casesAvailable(p);
+        for (Map.Entry<Position, Case> entrySet : p.getCases().entrySet()) {
+            if (entrySet.getValue() instanceof CaseDisponible) {
+                list.add(entrySet.getKey());
+            }
+
+        }
+
         setChanged();
-        notifyObservers(new Position(rand.nextInt(7 - 0 + 1) + 0, rand.nextInt(7 - 0 + 1) + 0));
+        notifyObservers(list.get(rand.nextInt(list.size())));
     }
 
 }
