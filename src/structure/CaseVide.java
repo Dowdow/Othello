@@ -6,7 +6,7 @@ public class CaseVide extends Case {
 
     @Override
     public Color getCouleur() {
-        return Color.GREEN;
+        return Color.decode("#2ecc40");
     }
 
     @Override
@@ -14,4 +14,11 @@ public class CaseVide extends Case {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "V";
+    }
+
+    
+    
 }

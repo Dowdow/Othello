@@ -6,7 +6,7 @@ public class CaseNoire extends Case {
 
     @Override
     public Color getCouleur() {
-        return Color.BLACK;
+        return Color.decode("#111111");
     }
 
     @Override
@@ -14,4 +14,11 @@ public class CaseNoire extends Case {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "N";
+    }
+
+    
+    
 }

@@ -163,7 +163,6 @@ public class Window extends JFrame implements Observer, ActionListener {
                     manager.setP2(new PlayerHuman(new CaseBlanche()));
                     break;
                 case "p2iafacile":
-                    System.out.println("Coucou");
                     manager.setP2(new IAFacile(new CaseBlanche()));
                     break;
             }

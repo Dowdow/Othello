@@ -50,7 +50,7 @@ public class Manager extends Observable implements Observer {
         if (!isGameStarted) {
             return;
         }
-        plateau.setCase(p, currentPlayer.getC());
+        plateau.capture(p, currentPlayer.getC());
         refresh();
         if (currentPlayer.equals(p1)) {
             currentPlayer = p2;
@@ -90,6 +90,7 @@ public class Manager extends Observable implements Observer {
             return;
         }
         this.plateau = plateau;
+        this.plateau.initialisation(this.plateau.getHeight(), this.plateau.getWidth());
         setChanged();
         notifyObservers("refresh");
     }
