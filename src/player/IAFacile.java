@@ -20,7 +20,6 @@ public class IAFacile extends PlayerIA {
         List<Position> list = new ArrayList<>();
         Random rand = new Random();
 
-        casesAvailable(p);
         for (Map.Entry<Position, Case> entrySet : p.getCases().entrySet()) {
             if (entrySet.getValue() instanceof CaseDisponible) {
                 list.add(entrySet.getKey());

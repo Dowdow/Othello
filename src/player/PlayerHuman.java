@@ -11,7 +11,6 @@ public class PlayerHuman extends Player {
 
     @Override
     public void jouer(Plateau p) {
-        casesAvailable(p);
         setChanged();
         notifyObservers("refresh");
     }

@@ -12,14 +12,32 @@ import structure.Position;
 
 public class Manager extends Observable implements Observer {
 
+    /**
+     * Plateau de jeu
+     */
     private Plateau plateau;
 
+    /**
+     * Joueur 1
+     */
     private Player p1;
+    /**
+     * Joueur 2
+     */
     private Player p2;
 
+    /**
+     * Joueur courant
+     */
     private Player currentPlayer;
+    /**
+     * Booleen determinant si la partie est en cours ou non
+     */
     private boolean isGameStarted = false;
 
+    /**
+     * Constructeur
+     */
     public Manager() {
         this.plateau = new Plateau();
         this.p1 = new PlayerHuman(new CaseNoire());
@@ -28,15 +46,22 @@ public class Manager extends Observable implements Observer {
         this.p2.addObserver(this);
     }
 
+    /**
+     * Permet de démarrer la partie
+     */
     public void start() {
         if (isGameStarted) {
             return;
         }
         this.currentPlayer = p1;
         this.isGameStarted = true;
+        this.plateau.casesAvailable(plateau, currentPlayer);
         currentPlayer.jouer(plateau);
     }
 
+    /**
+     * Permet de stopper la partie
+     */
     public void stop() {
         if (!isGameStarted) {
             return;
@@ -46,6 +71,11 @@ public class Manager extends Observable implements Observer {
         refresh();
     }
 
+    /**
+     * Permet de jouer un coup
+     *
+     * @param p
+     */
     public void jouer(Position p) {
         if (!isGameStarted) {
             return;
@@ -57,6 +87,7 @@ public class Manager extends Observable implements Observer {
         } else {
             currentPlayer = p1;
         }
+        this.plateau.casesAvailable(plateau, currentPlayer);
         currentPlayer.jouer(plateau);
     }
 
@@ -76,11 +107,15 @@ public class Manager extends Observable implements Observer {
         }
     }
 
+    /**
+     * Notifie les observers qu'il doivent mettre à jour leur tableau
+     */
     private void refresh() {
         setChanged();
         notifyObservers("refresh");
     }
 
+    // GETTERS AND SETTERS
     public Plateau getPlateau() {
         return plateau;
     }

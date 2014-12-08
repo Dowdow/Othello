@@ -1,21 +1,35 @@
 package structure;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import player.Player;
 
 public class Plateau {
 
     public static final int DEFAULT_WIDTH = 8;
     public static final int DEFAULT_HEIGHT = 8;
 
+    /**
+     * Hauteur du plateau
+     */
     private int height;
+    /**
+     * Largeur du plateau
+     */
     private int width;
-
+    /**
+     * Cases du plateau
+     */
     private Map<Position, Case> cases = new TreeMap<>();
 
     /**
-     * Constructeur
+     * Constructeur minimal
      */
     public Plateau() {
         setHeight(DEFAULT_HEIGHT);
@@ -76,6 +90,89 @@ public class Plateau {
     }
 
     /**
+     * Transmorme les CaseVide en CaseDisponible dans le cas ou celle ci
+     * permette un coup
+     *
+     * @param p
+     */
+    public void casesAvailable(Plateau p, Player player) {
+        List<Position> positions = new ArrayList<>();
+        int retour;
+        Case me = player.getC();
+        Case opponent = null;
+        if (me instanceof CaseBlanche) {
+            opponent = new CaseNoire();
+        } else {
+            opponent = new CaseBlanche();
+        }
+        String regex1 = "V+" + opponent.toString() + "+" + me.toString() + "+";
+        String regex2 = me.toString() + "+" + opponent.toString() + "+" + "V+";
+        //Parcours de toutes les lignes
+        for (int i = 1; i <= p.getHeight(); i++) {
+            String ligne = "";
+            for (int j = 1; j <= p.getWidth(); j++) {
+                ligne += p.getCases().get(new Position(i, j)).toString();
+            }
+            retour = match(regex1, ligne, true);
+            if (retour > 0) {
+                positions.add(new Position(i, retour));
+            }
+            retour = match(regex2, ligne, false);
+            if (retour > 0) {
+                positions.add(new Position(i, retour));
+            }
+        }
+        //Parcours de toutes les colonnes
+        for (int i = 1; i <= p.getWidth(); i++) {
+            String colonne = "";
+            for (int j = 1; j <= p.getHeight(); j++) {
+                colonne += p.getCases().get(new Position(j, i)).toString();
+            }
+            retour = match(regex1, colonne, true);
+            if (retour > 0) {
+                positions.add(new Position(retour, i));
+            }
+            retour = match(regex2, colonne, false);
+            if (retour > 0) {
+                positions.add(new Position(retour, i));
+            }
+        }
+
+        for (Iterator<Position> iterator = positions.iterator(); iterator.hasNext();) {
+            p.setCase(iterator.next(), new CaseDisponible());
+        }
+    }
+
+    /**
+     * Recherche un coup disponible
+     *
+     * @param regex
+     * @param ligne
+     * @param left
+     * @return
+     */
+    private int match(String regex, String ligne, boolean left) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(ligne);
+        while (matcher.find()) {
+            if (left) {
+                for (int i = 0; i < ligne.length(); i++) {
+                    if (ligne.charAt(i) == 'B' || ligne.charAt(i) == 'N') {
+                        return i;
+                    }
+                }
+            } else {
+                for (int i = ligne.length() - 1; i >= 0; i--) {
+                    if (ligne.charAt(i) == 'B' || ligne.charAt(i) == 'N') {
+                        return i + 2;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
      * Ajoute une case et calcule les cases a capturer
      *
      * @param p
@@ -116,6 +213,17 @@ public class Plateau {
         }
     }
 
+    /**
+     * Retourne les cases capturables de la gauche vers la droite
+     *
+     * @param i
+     * @param analyse
+     * @param opponent
+     * @param p
+     * @param c
+     * @param ligne
+     * @return
+     */
     private Map<Position, Case> captureLeftToRight(int i, String analyse, Case opponent, Position p, Case c, boolean ligne) {
         if (i >= analyse.length()) {
             return null;
@@ -138,6 +246,17 @@ public class Plateau {
         }
     }
 
+    /**
+     * Retourne les cases capturables de la droite vers la gauche
+     *
+     * @param i
+     * @param analyse
+     * @param opponent
+     * @param p
+     * @param c
+     * @param ligne
+     * @return
+     */
     private Map<Position, Case> captureRightToLeft(int i, String analyse, Case opponent, Position p, Case c, boolean ligne) {
         if (i < 0) {
             return null;
@@ -170,6 +289,7 @@ public class Plateau {
         }
     }
 
+    // GETTERS AND SETTERS
     public int getHeight() {
         return height;
     }
