@@ -55,6 +55,7 @@ public class Manager extends Observable implements Observer {
         }
         this.currentPlayer = p1;
         this.isGameStarted = true;
+        message("Le joueur " + currentPlayer.getC().toString() + " démarre la partie !");
         this.plateau.casesAvailable(plateau, currentPlayer);
         currentPlayer.jouer(plateau);
     }
@@ -68,6 +69,7 @@ public class Manager extends Observable implements Observer {
         }
         this.isGameStarted = false;
         this.plateau.initialisation(plateau.getHeight(), plateau.getWidth());
+        message("Le partie est terminée !");
         refresh();
     }
 
@@ -81,16 +83,18 @@ public class Manager extends Observable implements Observer {
             return;
         }
         plateau.capture(p, currentPlayer.getC());
+        message("Le joueur " + currentPlayer.getC().toString() + " joue en " + p.getX() + "-" + p.getY());
         refresh();
         if (currentPlayer.equals(p1)) {
             currentPlayer = p2;
         } else {
             currentPlayer = p1;
         }
+        message("C'est au tour du joueur " + currentPlayer.getC().toString());
         this.plateau.casesAvailable(plateau, currentPlayer);
         currentPlayer.jouer(plateau);
     }
-
+    
     @Override
     public void update(Observable obs, Object obj) {
         if (obj instanceof String) {
@@ -114,52 +118,59 @@ public class Manager extends Observable implements Observer {
         setChanged();
         notifyObservers("refresh");
     }
+    
+    private void message(String message) {
+        setChanged();
+        notifyObservers("message:" + message);
+    }
 
     // GETTERS AND SETTERS
     public Plateau getPlateau() {
         return plateau;
     }
-
+    
     public void setPlateau(Plateau plateau) {
         if (isGameStarted) {
             return;
         }
         this.plateau = plateau;
         this.plateau.initialisation(this.plateau.getHeight(), this.plateau.getWidth());
-        setChanged();
-        notifyObservers("refresh");
+        message("La nouvelle taille du plateau est " + this.plateau.getHeight() + "x" + this.plateau.getWidth());
+        refresh();
     }
-
+    
     public Player getP1() {
         return p1;
     }
-
+    
     public void setP1(Player p1) {
         if (isGameStarted) {
             return;
         }
         this.p1 = p1;
         p1.addObserver(this);
+        message("Le joueur 1 a été modifié");
     }
-
+    
     public Player getP2() {
         return p2;
     }
-
+    
     public void setP2(Player p2) {
         if (isGameStarted) {
             return;
         }
         this.p2 = p2;
         p2.addObserver(this);
+        message("Le joueur 2 a été modifié");
     }
-
+    
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
-
+    
     public boolean isIsGameStarted() {
         return isGameStarted;
     }
-
+    
 }

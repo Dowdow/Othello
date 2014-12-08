@@ -3,6 +3,7 @@ package vue;
 import application.Manager;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +20,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import player.IAFacile;
 import player.PlayerHuman;
 import structure.Case;
@@ -46,6 +50,8 @@ public class Window extends JFrame implements Observer, ActionListener {
     private JMenu player1;
     private JMenu player2;
     private JPanel pGame;
+    private JScrollPane pnLogs;
+    private JTextArea logs;
     private List<JButtonPosition> cases = new ArrayList<>();
 
     /**
@@ -69,50 +75,51 @@ public class Window extends JFrame implements Observer, ActionListener {
     private void create() {
         modal = new Modal(this);
 
-        menuBar = new JMenuBar();
+        pGame = new JPanel();
 
-        fileMenu = new JMenu("Fichier");
-        menuBar.add(fileMenu);
-        exit = new JMenuItem("Quitter");
-        exit.setActionCommand("quit");
-        exit.addActionListener(this);
-        fileMenu.add(exit);
+        logs = new JTextArea();
+        logs.setFont(new Font("Arial", Font.PLAIN, 14));
+        logs.setEditable(false);
+        logs.setLineWrap(true);
+        logs.setWrapStyleWord(true);
 
-        gameMenu = new JMenu("Jeu");
-        menuBar.add(gameMenu);
-        start = new JMenuItem("Lancer");
-        start.setActionCommand("start");
-        start.addActionListener(this);
-        gameMenu.add(start);
-        stop = new JMenuItem("Stopper");
-        stop.setEnabled(false);
-        stop.setActionCommand("stop");
-        stop.addActionListener(this);
-        gameMenu.add(stop);
+        pnLogs = new JScrollPane(logs);
+        pnLogs.setVerticalScrollBar(new JScrollBar());
+        pnLogs.setPreferredSize(new Dimension(200, 200));
 
-        boardMenu = new JMenu("Plateau");
-        menuBar.add(boardMenu);
-        boardParameters = new JMenuItem("Paramètres");
-        boardParameters.setActionCommand("settings");
-        boardParameters.addActionListener(this);
-        boardMenu.add(boardParameters);
-
-        playerMenu = new JMenu("Joueurs");
-        menuBar.add(playerMenu);
-
-        player1 = new JMenu("Joueur 1");
-        playerMenu.add(player1);
         ButtonGroup group1 = new ButtonGroup();
+        player1 = new JMenu("Joueur 1");
         player1.add(createRadioButton("Humain", "p1human", group1, true));
         player1.add(createRadioButton("IA Facile", "p1iafacile", group1, false));
 
-        player2 = new JMenu("Joueur 2");
-        playerMenu.add(player2);
         ButtonGroup group2 = new ButtonGroup();
+        player2 = new JMenu("Joueur 2");
         player2.add(createRadioButton("Humain", "p2human", group2, true));
         player2.add(createRadioButton("IA Facile", "p2iafacile", group2, false));
 
-        pGame = new JPanel();
+        fileMenu = new JMenu("Fichier");
+        exit = createJMenuItem("Quitter", "quit", true);
+        fileMenu.add(exit);
+
+        gameMenu = new JMenu("Jeu");
+        start = createJMenuItem("Lancer", "start", true);
+        gameMenu.add(start);
+        stop = createJMenuItem("Stopper", "stop", false);
+        gameMenu.add(stop);
+
+        boardMenu = new JMenu("Plateau");
+        boardParameters = createJMenuItem("Paramètres", "settings", true);
+        boardMenu.add(boardParameters);
+
+        playerMenu = new JMenu("Joueurs");
+        playerMenu.add(player1);
+        playerMenu.add(player2);
+
+        menuBar = new JMenuBar();
+        menuBar.add(fileMenu);
+        menuBar.add(gameMenu);
+        menuBar.add(boardMenu);
+        menuBar.add(playerMenu);
     }
 
     /**
@@ -121,6 +128,7 @@ public class Window extends JFrame implements Observer, ActionListener {
     private void place() {
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(pGame, BorderLayout.CENTER);
+        this.getContentPane().add(pnLogs, BorderLayout.EAST);
         this.setJMenuBar(menuBar);
     }
 
@@ -208,14 +216,25 @@ public class Window extends JFrame implements Observer, ActionListener {
     @Override
     public void update(Observable o, Object o1) {
         if (o1 instanceof String) {
-            String str = o1.toString();
-            switch (str) {
+            String[] str = o1.toString().split(":");
+            switch (str[0]) {
                 case "refresh":
                     refreshBoard(manager.getPlateau());
+                    break;
+                case "message":
+                    logs.append(str[1] + "\n");
                     break;
             }
 
         }
+    }
+
+    private JMenuItem createJMenuItem(String name, String action, boolean enabled) {
+        JMenuItem jmi = new JMenuItem(name);
+        jmi.setActionCommand(action);
+        jmi.setEnabled(enabled);
+        jmi.addActionListener(this);
+        return jmi;
     }
 
     private JRadioButtonMenuItem createRadioButton(String name, String actionCommand, ButtonGroup group, boolean isSelected) {
