@@ -56,7 +56,7 @@ public class Manager extends Observable implements Observer {
         this.currentPlayer = p1;
         this.isGameStarted = true;
         message("Le joueur " + currentPlayer.getC().toString() + " démarre la partie !");
-        this.plateau.casesAvailable(plateau, currentPlayer);
+        this.plateau.casesAvailable(currentPlayer);
         currentPlayer.jouer(plateau);
     }
 
@@ -82,19 +82,42 @@ public class Manager extends Observable implements Observer {
         if (!isGameStarted) {
             return;
         }
+        // Finalisation du tour
         plateau.capture(p, currentPlayer.getC());
         message("Le joueur " + currentPlayer.getC().toString() + " joue en " + p.getX() + "-" + p.getY());
         refresh();
-        if (currentPlayer.equals(p1)) {
-            currentPlayer = p2;
-        } else {
-            currentPlayer = p1;
+        // Préparation du prochain tour
+        changerPlayer();
+        int caseDispo = this.plateau.casesAvailable(currentPlayer);
+        if (caseDispo == 0) {
+            message("Le joueur " + currentPlayer.getC().toString() + " n'a plus de coup et doit sauter son tour");
+            changerPlayer();
+            int caseDispo2 = this.plateau.casesAvailable(currentPlayer);
+            if (caseDispo2 == 0) {
+                message("Plus personne ne peut jouer la partie est donc terminée");
+                end();
+                return;
+            }
         }
         message("C'est au tour du joueur " + currentPlayer.getC().toString());
-        this.plateau.casesAvailable(plateau, currentPlayer);
         currentPlayer.jouer(plateau);
     }
-    
+
+    /**
+     * Termine la partie et renvoit les scores
+     */
+    private void end() {
+        int scoreP1 = plateau.calculScore(p1);
+        int scoreP2 = plateau.calculScore(p2);
+        if (scoreP1 > scoreP2) {
+            message("Le joueur " + p1.getC().toString() + " remporte la partie " + scoreP1 + "-" + scoreP2);
+        } else if (scoreP1 < scoreP2) {
+            message("Le joueur " + p2.getC().toString() + " remporte la partie " + scoreP2 + "-" + scoreP1);
+        } else {
+            message("Egalité " + scoreP1 + "-" + scoreP2);
+        }
+    }
+
     @Override
     public void update(Observable obs, Object obj) {
         if (obj instanceof String) {
@@ -111,14 +134,27 @@ public class Manager extends Observable implements Observer {
         }
     }
 
+    private void changerPlayer() {
+        if (currentPlayer.equals(p1)) {
+            currentPlayer = p2;
+        } else {
+            currentPlayer = p1;
+        }
+    }
+
     /**
-     * Notifie les observers qu'il doivent mettre à jour leur tableau
+     * Notifie les observers qu'ils doivent mettre à jour leur tableau
      */
     private void refresh() {
         setChanged();
         notifyObservers("refresh");
     }
-    
+
+    /**
+     * Notifie les observers qu'ils viennent de recevoir une information
+     *
+     * @param message
+     */
     private void message(String message) {
         setChanged();
         notifyObservers("message:" + message);
@@ -128,7 +164,7 @@ public class Manager extends Observable implements Observer {
     public Plateau getPlateau() {
         return plateau;
     }
-    
+
     public void setPlateau(Plateau plateau) {
         if (isGameStarted) {
             return;
@@ -138,11 +174,11 @@ public class Manager extends Observable implements Observer {
         message("La nouvelle taille du plateau est " + this.plateau.getHeight() + "x" + this.plateau.getWidth());
         refresh();
     }
-    
+
     public Player getP1() {
         return p1;
     }
-    
+
     public void setP1(Player p1) {
         if (isGameStarted) {
             return;
@@ -151,11 +187,11 @@ public class Manager extends Observable implements Observer {
         p1.addObserver(this);
         message("Le joueur 1 a été modifié");
     }
-    
+
     public Player getP2() {
         return p2;
     }
-    
+
     public void setP2(Player p2) {
         if (isGameStarted) {
             return;
@@ -164,13 +200,13 @@ public class Manager extends Observable implements Observer {
         p2.addObserver(this);
         message("Le joueur 2 a été modifié");
     }
-    
+
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
-    
+
     public boolean isIsGameStarted() {
         return isGameStarted;
     }
-    
+
 }

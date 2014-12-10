@@ -192,6 +192,7 @@ public class Window extends JFrame implements Observer, ActionListener {
                     stop.setEnabled(false);
                     boardMenu.setEnabled(true);
                     playerMenu.setEnabled(true);
+                    logs.setText("");
                     break;
                 case "settings":
                     modal.setVisible(true);

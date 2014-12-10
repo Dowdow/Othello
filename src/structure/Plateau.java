@@ -90,12 +90,28 @@ public class Plateau {
     }
 
     /**
+     * Calcule le score d'un joueur
+     *
+     * @param p
+     * @return
+     */
+    public int calculScore(Player p) {
+        int score = 0;
+        for (Map.Entry<Position, Case> entrySet : cases.entrySet()) {
+            if (entrySet.getValue().getClass() == p.getC().getClass()) {
+                score++;
+            }
+        }
+        return score;
+    }
+
+    /**
      * Transmorme les CaseVide en CaseDisponible dans le cas ou celle ci
      * permette un coup
      *
      * @param p
      */
-    public void casesAvailable(Plateau p, Player player) {
+    public int casesAvailable(Player player) {
         List<Position> positions = new ArrayList<>();
         int retour;
         Case me = player.getC();
@@ -108,39 +124,101 @@ public class Plateau {
         String regex1 = "V+" + opponent.toString() + "+" + me.toString() + "+";
         String regex2 = me.toString() + "+" + opponent.toString() + "+" + "V+";
         //Parcours de toutes les lignes
-        for (int i = 1; i <= p.getHeight(); i++) {
+        for (int i = 1; i <= height; i++) {
             String ligne = "";
-            for (int j = 1; j <= p.getWidth(); j++) {
-                ligne += p.getCases().get(new Position(i, j)).toString();
+            for (int j = 1; j <= width; j++) {
+                ligne += cases.get(new Position(i, j)).toString();
             }
             retour = match(regex1, ligne, true);
-            if (retour > 0) {
+            if (retour > 0 && retour <= height) {
                 positions.add(new Position(i, retour));
             }
             retour = match(regex2, ligne, false);
-            if (retour > 0) {
+            if (retour > 0 && retour <= height) {
                 positions.add(new Position(i, retour));
             }
         }
         //Parcours de toutes les colonnes
-        for (int i = 1; i <= p.getWidth(); i++) {
+        for (int i = 1; i <= width; i++) {
             String colonne = "";
-            for (int j = 1; j <= p.getHeight(); j++) {
-                colonne += p.getCases().get(new Position(j, i)).toString();
+            for (int j = 1; j <= height; j++) {
+                colonne += cases.get(new Position(j, i)).toString();
             }
             retour = match(regex1, colonne, true);
-            if (retour > 0) {
+            if (retour > 0 && retour <= width) {
                 positions.add(new Position(retour, i));
             }
             retour = match(regex2, colonne, false);
-            if (retour > 0) {
+            if (retour > 0 && retour <= width) {
                 positions.add(new Position(retour, i));
             }
         }
+        /*
+         //Parcours de toutes les diagonales droite->gauche, commence à 1-3
+         int ligne = 0;
+         int colonne = 0;
+         int hauteur = p.getHeight() - 2;
+         int largeur = p.getWidth() - 1;
 
+         System.out.println("Diagonales de droite à gauche");
+         for (int i = 3; i <= largeur; i++) {
+         String diagonale = "";
+         colonne = i;
+         for (int j = 1; j <= i; j++) {
+         diagonale += p.getCases().get(new Position(j, colonne)).toString();
+         colonne = colonne - 1;
+         }
+         System.out.println(diagonale);
+         }
+
+         for (int i = 1; i <= hauteur; i++) {
+         String diagonale = "";
+         ligne = i;
+         for (int j = p.getWidth(); j >= i; j--) {
+         diagonale += p.getCases().get(new Position(ligne, j)).toString();
+         ligne += 1;
+         }
+         System.out.println(diagonale);
+         }
+         //Parcours de toutes les diagonales gauche->droite, commence à 6-1
+         System.out.println("Diagonales de gauche à droite");
+         for (int i = hauteur; i > 1; i--) {
+         String diagonale = "";
+         ligne = i;
+         int compteur = 1;
+         for (int j = i; j <= p.getHeight(); j++) {
+         diagonale += p.getCases().get(new Position(ligne, compteur)).toString();
+         ligne += 1;
+         compteur += 1;
+         }
+         System.out.println(diagonale);
+         }
+
+         for (int i = 1; i < largeur; i++) {
+         String diagonale = "";
+         colonne = i;
+         int compteur = 1;
+         for (int j = 8; j >= i; j--) {
+         diagonale += p.getCases().get(new Position(colonne, compteur)).toString();
+         colonne += 1;
+         compteur += 1;
+         }
+         System.out.println(diagonale);
+         }
+         */
+        int nbDispo = 0;
         for (Iterator<Position> iterator = positions.iterator(); iterator.hasNext();) {
-            p.setCase(iterator.next(), new CaseDisponible());
+            Position a = iterator.next();
+            if (a.getX() < 1 || a.getX() > width) {
+                System.out.println("X bug");
+            }
+            if (a.getY() < 1 || a.getY() > height) {
+                System.out.println("Y bug");
+            }
+            cases.put(a, new CaseDisponible());
+            nbDispo++;
         }
+        return nbDispo;
     }
 
     /**
