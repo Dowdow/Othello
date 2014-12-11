@@ -23,6 +23,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import player.IADifficile;
 import player.IAFacile;
 import player.IAMoyenne;
 import player.PlayerHuman;
@@ -93,12 +94,14 @@ public class Window extends JFrame implements Observer, ActionListener {
         player1.add(createRadioButton("Humain", "p1human", group1, true));
         player1.add(createRadioButton("IA Facile", "p1iafacile", group1, false));
         player1.add(createRadioButton("IA Moyenne", "p1iamoyenne", group1, false));
+        player1.add(createRadioButton("IA Difficile", "p1iadifficile", group1, false));
 
         ButtonGroup group2 = new ButtonGroup();
         player2 = new JMenu("Joueur 2");
         player2.add(createRadioButton("Humain", "p2human", group2, true));
         player2.add(createRadioButton("IA Facile", "p2iafacile", group2, false));
         player2.add(createRadioButton("IA Moyenne", "p2iamoyenne", group2, false));
+        player2.add(createRadioButton("IA Difficile", "p2iadifficile", group2, false));
 
         fileMenu = new JMenu("Fichier");
         exit = createJMenuItem("Quitter", "quit", true);
@@ -172,6 +175,9 @@ public class Window extends JFrame implements Observer, ActionListener {
                 case "p1iamoyenne":
                     manager.setP1(new IAMoyenne(new CaseNoire()));
                     break;
+                case "p1iadifficile":
+                    manager.setP1(new IADifficile(new CaseNoire()));
+                    break;
                 case "p2human":
                     manager.setP2(new PlayerHuman(new CaseBlanche()));
                     break;
@@ -180,6 +186,9 @@ public class Window extends JFrame implements Observer, ActionListener {
                     break;
                 case "p2iamoyenne":
                     manager.setP2(new IAMoyenne(new CaseBlanche()));
+                    break;
+                case "p2iadifficile":
+                    manager.setP2(new IADifficile(new CaseBlanche()));
                     break;
             }
         } else if (ae.getSource() instanceof JMenuItem) {

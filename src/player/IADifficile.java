@@ -10,9 +10,9 @@ import structure.CaseDisponible;
 import structure.Plateau;
 import structure.Position;
 
-public class IAMoyenne extends PlayerIA {
+public class IADifficile extends PlayerIA {
 
-    public IAMoyenne(Case c) {
+    public IADifficile(Case c) {
         super(c);
     }
 
@@ -32,6 +32,17 @@ public class IAMoyenne extends PlayerIA {
 
         for (Position next : cases) {
             int score = pActuel.capture(next, this);
+            if ((next.getX() == 1 && next.getY() == 1)
+                    || (next.getX() == p.getHeight() && next.getY() == 1)
+                    || (next.getX() == 1 && next.getY() == p.getWidth())
+                    || (next.getX() == p.getHeight() && next.getY() == p.getWidth())) {
+                score += 3;
+            } else if (next.getX() == 1
+                    || next.getY() == 1
+                    || next.getX() == p.getHeight()
+                    || next.getY() == p.getWidth()) {
+                score += 1;
+            }
             if (score > bestScore) {
                 bestScore = score;
                 bestPosition = next;
