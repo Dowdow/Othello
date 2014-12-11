@@ -24,7 +24,6 @@ public class IAFacile extends PlayerIA {
             if (entrySet.getValue() instanceof CaseDisponible) {
                 list.add(entrySet.getKey());
             }
-
         }
 
         setChanged();

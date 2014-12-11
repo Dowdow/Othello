@@ -24,6 +24,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import player.IAFacile;
+import player.IAMoyenne;
 import player.PlayerHuman;
 import structure.Case;
 import structure.CaseBlanche;
@@ -91,11 +92,13 @@ public class Window extends JFrame implements Observer, ActionListener {
         player1 = new JMenu("Joueur 1");
         player1.add(createRadioButton("Humain", "p1human", group1, true));
         player1.add(createRadioButton("IA Facile", "p1iafacile", group1, false));
+        player1.add(createRadioButton("IA Moyenne", "p1iamoyenne", group1, false));
 
         ButtonGroup group2 = new ButtonGroup();
         player2 = new JMenu("Joueur 2");
         player2.add(createRadioButton("Humain", "p2human", group2, true));
         player2.add(createRadioButton("IA Facile", "p2iafacile", group2, false));
+        player2.add(createRadioButton("IA Moyenne", "p2iamoyenne", group2, false));
 
         fileMenu = new JMenu("Fichier");
         exit = createJMenuItem("Quitter", "quit", true);
@@ -166,11 +169,17 @@ public class Window extends JFrame implements Observer, ActionListener {
                 case "p1iafacile":
                     manager.setP1(new IAFacile(new CaseNoire()));
                     break;
+                case "p1iamoyenne":
+                    manager.setP1(new IAMoyenne(new CaseNoire()));
+                    break;
                 case "p2human":
                     manager.setP2(new PlayerHuman(new CaseBlanche()));
                     break;
                 case "p2iafacile":
                     manager.setP2(new IAFacile(new CaseBlanche()));
+                    break;
+                case "p2iamoyenne":
+                    manager.setP2(new IAMoyenne(new CaseBlanche()));
                     break;
             }
         } else if (ae.getSource() instanceof JMenuItem) {

@@ -57,7 +57,7 @@ public class Manager extends Observable implements Observer {
         this.isGameStarted = true;
         message("Le joueur " + currentPlayer.getC().toString() + " démarre la partie !");
         this.plateau.casesAvailable(currentPlayer);
-        currentPlayer.jouer(plateau);
+        currentPlayer.jouer(new Plateau(plateau));
     }
 
     /**
@@ -83,8 +83,8 @@ public class Manager extends Observable implements Observer {
             return;
         }
         // Finalisation du tour
-        plateau.capture(p, currentPlayer.getC());
-        message("Le joueur " + currentPlayer.getC().toString() + " joue en " + p.getX() + "-" + p.getY());
+        int nbCapture = plateau.capture(p, currentPlayer);
+        message("Le joueur " + currentPlayer.getC().toString() + " joue en " + p.getX() + "-" + p.getY() + " en capturant " + nbCapture + " cases");
         refresh();
         // Préparation du prochain tour
         changerPlayer();
@@ -100,7 +100,7 @@ public class Manager extends Observable implements Observer {
             }
         }
         message("C'est au tour du joueur " + currentPlayer.getC().toString());
-        currentPlayer.jouer(plateau);
+        currentPlayer.jouer(new Plateau(plateau));
     }
 
     /**
