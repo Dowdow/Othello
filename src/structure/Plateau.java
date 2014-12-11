@@ -153,69 +153,55 @@ public class Plateau {
                 positions.add(new Position(retour, i));
             }
         }
-        /*
-         //Parcours de toutes les diagonales droite->gauche, commence à 1-3
-         int ligne = 0;
-         int colonne = 0;
-         int hauteur = p.getHeight() - 2;
-         int largeur = p.getWidth() - 1;
+        //Parcours de toutes les diagonales droite->gauche, commence à 1-3
+        String diagonale;
+        int i = 1;
+        int j = 3;
+        while (i < height - 1) {
+            diagonale = "";
+            for (int k = i, l = j; k <= height && l > 0; k++, l--) {
+                diagonale += cases.get(new Position(k, l));
+            }
+            retour = match(regex1, diagonale, true);
+            if (retour > 0 && retour <= width && retour <= height) {
+                positions.add(new Position((i + retour - 1), (j - retour + 1)));
+            }
+            retour = match(regex2, diagonale, false);
+            if (retour > 0 && retour <= width && retour <= height) {
+                positions.add(new Position((i + retour - 1), (j - retour + 1)));
+            }
+            if (j < width) {
+                j++;
+            } else if (j == width) {
+                i++;
+            }
+        }
+        //Parcours de toutes les diagonales gauche->droite, commence à 6-1
+        i = 1;
+        j = width - 2;
+        while (i < height - 1) {
+            diagonale = "";
+            for (int k = i, l = j; k <= height && l <= width; k++, l++) {
+                diagonale += cases.get(new Position(k, l));
+            }
+            retour = match(regex1, diagonale, true);
+            if (retour > 0 && retour <= width && retour <= height) {
+                positions.add(new Position((i + retour - 1), (j + retour - 1)));
+            }
+            retour = match(regex2, diagonale, false);
+            if (retour > 0 && retour <= width && retour <= height) {
+                positions.add(new Position((i + retour - 1), (j + retour - 1)));
+            }
+            if (j > 1) {
+                j--;
+            } else if (j == 1) {
+                i++;
+            }
+        }
 
-         System.out.println("Diagonales de droite à gauche");
-         for (int i = 3; i <= largeur; i++) {
-         String diagonale = "";
-         colonne = i;
-         for (int j = 1; j <= i; j++) {
-         diagonale += p.getCases().get(new Position(j, colonne)).toString();
-         colonne = colonne - 1;
-         }
-         System.out.println(diagonale);
-         }
-
-         for (int i = 1; i <= hauteur; i++) {
-         String diagonale = "";
-         ligne = i;
-         for (int j = p.getWidth(); j >= i; j--) {
-         diagonale += p.getCases().get(new Position(ligne, j)).toString();
-         ligne += 1;
-         }
-         System.out.println(diagonale);
-         }
-         //Parcours de toutes les diagonales gauche->droite, commence à 6-1
-         System.out.println("Diagonales de gauche à droite");
-         for (int i = hauteur; i > 1; i--) {
-         String diagonale = "";
-         ligne = i;
-         int compteur = 1;
-         for (int j = i; j <= p.getHeight(); j++) {
-         diagonale += p.getCases().get(new Position(ligne, compteur)).toString();
-         ligne += 1;
-         compteur += 1;
-         }
-         System.out.println(diagonale);
-         }
-
-         for (int i = 1; i < largeur; i++) {
-         String diagonale = "";
-         colonne = i;
-         int compteur = 1;
-         for (int j = 8; j >= i; j--) {
-         diagonale += p.getCases().get(new Position(colonne, compteur)).toString();
-         colonne += 1;
-         compteur += 1;
-         }
-         System.out.println(diagonale);
-         }
-         */
         int nbDispo = 0;
         for (Iterator<Position> iterator = positions.iterator(); iterator.hasNext();) {
-            Position a = iterator.next();
-            if (a.getX() < 1 || a.getX() > width) {
-                System.out.println("X bug");
-            }
-            if (a.getY() < 1 || a.getY() > height) {
-                System.out.println("Y bug");
-            }
-            cases.put(a, new CaseDisponible());
+            cases.put(iterator.next(), new CaseDisponible());
             nbDispo++;
         }
         return nbDispo;
