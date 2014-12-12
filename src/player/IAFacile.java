@@ -16,7 +16,7 @@ public class IAFacile extends PlayerIA {
     }
 
     @Override
-    public void jouer(Plateau p) {
+    public int jouer(Plateau p) {
         List<Position> list = new ArrayList<>();
         Random rand = new Random();
 
@@ -28,6 +28,7 @@ public class IAFacile extends PlayerIA {
 
         setChanged();
         notifyObservers(list.get(rand.nextInt(list.size())));
+        return 0;
     }
 
 }

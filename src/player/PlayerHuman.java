@@ -10,9 +10,10 @@ public class PlayerHuman extends Player {
     }
 
     @Override
-    public void jouer(Plateau p) {
+    public int jouer(Plateau p) {
         setChanged();
         notifyObservers("refresh");
+        return 0;
     }
     
 }

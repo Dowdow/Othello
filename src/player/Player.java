@@ -21,8 +21,9 @@ public abstract class Player extends Observable {
      * Joue un coup
      *
      * @param p
+     * @return 
      */
-    public abstract void jouer(Plateau p);
+    public abstract int jouer(Plateau p);
 
     public Case getC() {
         return c;
