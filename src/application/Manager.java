@@ -10,7 +10,7 @@ import structure.CaseNoire;
 import structure.Plateau;
 import structure.Position;
 
-public class Manager extends Observable implements Observer {
+public class Manager extends Observable implements Observer, Runnable {
 
     /**
      * Plateau de jeu
@@ -36,6 +36,11 @@ public class Manager extends Observable implements Observer {
     private boolean isGameStarted = false;
 
     /**
+     * Temps d'attente entre chaque tour
+     */
+    private int sleeptime = 500;
+
+    /**
      * Constructeur
      */
     public Manager() {
@@ -46,10 +51,15 @@ public class Manager extends Observable implements Observer {
         this.p2.addObserver(this);
     }
 
+    @Override
+    public void run() {
+        start();
+    }
+
     /**
      * Permet de démarrer la partie
      */
-    public void start() {
+    private void start() {
         if (isGameStarted) {
             return;
         }
@@ -86,6 +96,13 @@ public class Manager extends Observable implements Observer {
         int nbCapture = plateau.capture(p, currentPlayer);
         message("Le joueur " + currentPlayer.getC().toString() + " joue en " + p.getX() + "-" + p.getY() + " en capturant " + nbCapture + " cases");
         refresh();
+        if (currentPlayer instanceof PlayerIA) {
+            try {
+                Thread.sleep(sleeptime);
+            } catch (InterruptedException ex) {
+                System.err.println("Erreur lors de la mise en pause du Thread");
+            }
+        }
         // Préparation du prochain tour
         changerPlayer();
         int caseDispo = this.plateau.casesAvailable(currentPlayer);
@@ -207,6 +224,10 @@ public class Manager extends Observable implements Observer {
 
     public boolean isIsGameStarted() {
         return isGameStarted;
+    }
+
+    public void setSleeptime(int sleeptime) {
+        this.sleeptime = sleeptime;
     }
 
 }

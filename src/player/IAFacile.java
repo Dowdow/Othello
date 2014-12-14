@@ -14,7 +14,7 @@ public class IAFacile extends PlayerIA {
     public IAFacile(Case c) {
         super(c);
     }
-
+    
     @Override
     public int jouer(Plateau p) {
         List<Position> list = new ArrayList<>();

@@ -15,6 +15,7 @@ import java.util.Observer;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -22,7 +23,10 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import player.IADifficile;
 import player.IAExpert;
 import player.IAFacile;
@@ -35,11 +39,12 @@ import structure.Plateau;
 import structure.Position;
 
 @SuppressWarnings("serial")
-public class Window extends JFrame implements Observer, ActionListener {
+public class Window extends JFrame implements Observer, ActionListener, ChangeListener {
 
     private Manager manager;
-
+    private Thread t;
     private Modal modal;
+    private JSlider vitesse;
 
     private JMenuBar menuBar;
     private JMenu fileMenu;
@@ -76,8 +81,14 @@ public class Window extends JFrame implements Observer, ActionListener {
      */
     private void create() {
         modal = new Modal(this);
-
         pGame = new JPanel();
+
+        vitesse = new JSlider(JSlider.HORIZONTAL, 0, 2000, 500);
+        vitesse.setMajorTickSpacing(1000);
+        vitesse.setMinorTickSpacing(100);
+        vitesse.setPaintTicks(true);
+        vitesse.setPaintLabels(true);
+        vitesse.addChangeListener(this);
 
         logs = new JTextArea();
         logs.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -131,9 +142,18 @@ public class Window extends JFrame implements Observer, ActionListener {
      * Place elements
      */
     private void place() {
+        JPanel pnVitesse = new JPanel(new GridLayout(2, 1));
+        pnVitesse.setPreferredSize(new Dimension(200, 80));
+        pnVitesse.add(new JLabel("Vitesse"));
+        pnVitesse.add(vitesse);
+
+        JPanel pnEast = new JPanel(new BorderLayout());
+        pnEast.add(pnVitesse, BorderLayout.NORTH);
+        pnEast.add(pnLogs, BorderLayout.CENTER);
+
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(pGame, BorderLayout.CENTER);
-        this.getContentPane().add(pnLogs, BorderLayout.EAST);
+        this.getContentPane().add(pnEast, BorderLayout.EAST);
         this.setJMenuBar(menuBar);
     }
 
@@ -203,7 +223,8 @@ public class Window extends JFrame implements Observer, ActionListener {
                     this.dispose();
                     break;
                 case "start":
-                    manager.start();
+                    t = new Thread(manager);
+                    t.start();
                     start.setEnabled(false);
                     stop.setEnabled(true);
                     boardMenu.setEnabled(false);
@@ -212,6 +233,13 @@ public class Window extends JFrame implements Observer, ActionListener {
                     break;
                 case "stop":
                     manager.stop();
+                     {
+                        try {
+                            t.join();
+                        } catch (InterruptedException ex) {
+                            System.err.println("Erreur lors de l'interruption du Thread");
+                        }
+                    }
                     start.setEnabled(true);
                     stop.setEnabled(false);
                     boardMenu.setEnabled(true);
@@ -240,6 +268,14 @@ public class Window extends JFrame implements Observer, ActionListener {
     }
 
     @Override
+    public void stateChanged(ChangeEvent ce) {
+        if (ce.getSource() instanceof JSlider) {
+            JSlider slider = (JSlider) ce.getSource();
+            manager.setSleeptime(slider.getValue());
+        }
+    }
+
+    @Override
     public void update(Observable o, Object o1) {
         if (o1 instanceof String) {
             String[] str = o1.toString().split(":");
@@ -249,6 +285,7 @@ public class Window extends JFrame implements Observer, ActionListener {
                     break;
                 case "message":
                     logs.append(str[1] + "\n");
+                    logs.setCaretPosition(logs.getDocument().getLength());
                     break;
             }
 

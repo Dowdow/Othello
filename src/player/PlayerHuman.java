@@ -15,5 +15,5 @@ public class PlayerHuman extends Player {
         notifyObservers("refresh");
         return 0;
     }
-    
+
 }

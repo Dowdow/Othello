@@ -32,7 +32,7 @@ public class IAExpert extends PlayerIA {
         Plateau pActuel = new Plateau(p);
         Position bestPosition = null;
         Map<Position, Integer> scores = new HashMap<>();
-        int bestScore = - p.getHeight() * p.getWidth();
+        int bestScore = -p.getHeight() * p.getWidth();
 
         for (Map.Entry<Position, Case> entrySet : p.getCases().entrySet()) {
             Position position = entrySet.getKey();
