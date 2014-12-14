@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import player.Player;
 
 public class Plateau {
@@ -54,7 +52,8 @@ public class Plateau {
 
     /**
      * Constructeur par clonage
-     * @param p 
+     *
+     * @param p
      */
     public Plateau(Plateau p) {
         setHeight(p.getHeight());
@@ -126,30 +125,19 @@ public class Plateau {
      */
     public int casesAvailable(Player player) {
         List<Position> positions = new ArrayList<>();
-        int retour;
-        Case me = player.getC();
         Case opponent = null;
-        if (me instanceof CaseBlanche) {
+        if (player.getC() instanceof CaseBlanche) {
             opponent = new CaseNoire();
         } else {
             opponent = new CaseBlanche();
         }
-        String regex1 = "V+" + opponent.toString() + "+" + me.toString() + "+";
-        String regex2 = me.toString() + "+" + opponent.toString() + "+" + "V+";
         //Parcours de toutes les lignes
         for (int i = 1; i <= height; i++) {
             String ligne = "";
             for (int j = 1; j <= width; j++) {
                 ligne += cases.get(new Position(i, j)).toString();
             }
-            retour = match(regex1, ligne, true);
-            if (retour > 0 && retour <= height) {
-                positions.add(new Position(i, retour));
-            }
-            retour = match(regex2, ligne, false);
-            if (retour > 0 && retour <= height) {
-                positions.add(new Position(i, retour));
-            }
+            positions.addAll(match(ligne, new Position(i, 1), player.getC().toString().charAt(0), opponent.toString().charAt(0), 0, 1));
         }
         //Parcours de toutes les colonnes
         for (int i = 1; i <= width; i++) {
@@ -157,16 +145,9 @@ public class Plateau {
             for (int j = 1; j <= height; j++) {
                 colonne += cases.get(new Position(j, i)).toString();
             }
-            retour = match(regex1, colonne, true);
-            if (retour > 0 && retour <= width) {
-                positions.add(new Position(retour, i));
-            }
-            retour = match(regex2, colonne, false);
-            if (retour > 0 && retour <= width) {
-                positions.add(new Position(retour, i));
-            }
+            positions.addAll(match(colonne, new Position(1, i), player.getC().toString().charAt(0), opponent.toString().charAt(0), 1, 0));
         }
-        /*Parcours de toutes les diagonales droite->gauche, commence
+        //Parcours de toutes les diagonales droite->gauche
         String diagonale;
         int i = 1, j = 3, x, y;
         while (i < height - 1) {
@@ -174,22 +155,7 @@ public class Plateau {
             for (int k = i, l = j; k <= height && l > 0; k++, l--) {
                 diagonale += cases.get(new Position(k, l));
             }
-            retour = match(regex1, diagonale, true);
-            if (retour > 0 && retour <= width && retour <= height) {
-                x = i + retour - 1;
-                y = j - retour + 1;
-                if (x > 0 && x <= width && y > 0 && y <= height) {
-                    positions.add(new Position(x, y));
-                }
-            }
-            retour = match(regex2, diagonale, false);
-            if (retour > 0 && retour <= width && retour <= height) {
-                x = i + retour - 1;
-                y = j - retour + 1;
-                if (x > 0 && x <= width && y > 0 && y <= height) {
-                    positions.add(new Position(x, y));
-                }
-            }
+            positions.addAll(match(diagonale, new Position(i, j), player.getC().toString().charAt(0), opponent.toString().charAt(0), 1, -1));
             if (j < width) {
                 j++;
             } else if (j == width) {
@@ -204,28 +170,13 @@ public class Plateau {
             for (int k = i, l = j; k <= height && l <= width; k++, l++) {
                 diagonale += cases.get(new Position(k, l));
             }
-            retour = match(regex1, diagonale, true);
-            if (retour > 0 && retour <= width && retour <= height) {
-                x = i + retour - 1;
-                y = j + retour - 1;
-                if (x > 0 && x <= width && y > 0 && y <= height) {
-                    positions.add(new Position(x, y));
-                }
-            }
-            retour = match(regex2, diagonale, false);
-            if (retour > 0 && retour <= width && retour <= height) {
-                x = i + retour - 1;
-                y = j + retour - 1;
-                if (x > 0 && x <= width && y > 0 && y <= height) {
-                    positions.add(new Position(x, y));
-                }
-            }
+            positions.addAll(match(diagonale, new Position(i, j), player.getC().toString().charAt(0), opponent.toString().charAt(0), 1, 1));
             if (j > 1) {
                 j--;
             } else if (j == 1) {
                 i++;
             }
-        }*/
+        }
 
         int nbDispo = 0;
         for (Iterator<Position> iterator = positions.iterator(); iterator.hasNext();) {
@@ -238,30 +189,48 @@ public class Plateau {
     /**
      * Recherche un coup disponible
      *
-     * @param regex
-     * @param ligne
-     * @param left
      * @return
      */
-    private int match(String regex, String ligne, boolean left) {
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(ligne);
-        while (matcher.find()) {
-            if (left) {
-                for (int i = 0; i < ligne.length(); i++) {
-                    if (ligne.charAt(i) == 'B' || ligne.charAt(i) == 'N') {
-                        return i;
-                    }
+    private List<Position> match(String analyse, Position p, char me, char opponent, int x, int y) {
+        List<Position> liste = new ArrayList<>();
+        Position potential = null;
+        boolean match = false;
+        int px = p.getX(), py = p.getY();
+        for (int i = 0; i < analyse.length() - 1; i++) {
+            if (analyse.charAt(i) == 'V') {
+                if (i + 1 < analyse.length() - 1 && analyse.charAt(i + 1) == opponent) {
+                    potential = new Position(px, py);
+                    match = true;
+                } else {
+                    match = false;
                 }
-            } else {
-                for (int i = ligne.length() - 1; i >= 0; i--) {
-                    if (ligne.charAt(i) == 'B' || ligne.charAt(i) == 'N') {
-                        return i + 2;
-                    }
+            } else if (analyse.charAt(i) == me) {
+                if (match) {
+                    match = false;
+                    liste.add(potential);
                 }
             }
+            px += x;
+            py += y;
         }
-        return 0;
+        for (int i = analyse.length() - 1; i > 0; i--) {
+            if (analyse.charAt(i) == 'V') {
+                if (i - 1 > 0 && analyse.charAt(i - 1) == opponent) {
+                    potential = new Position(px, py);
+                    match = true;
+                } else {
+                    match = false;
+                }
+            } else if (analyse.charAt(i) == me) {
+                if (match) {
+                    match = false;
+                    liste.add(potential);
+                }
+            }
+            px -= x;
+            py -= y;
+        }
+        return liste;
     }
 
     /**
