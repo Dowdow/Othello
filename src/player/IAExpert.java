@@ -9,7 +9,7 @@ import structure.Position;
 
 public class IAExpert extends PlayerIA {
 
-    public static final int PROFONDEUR_MAX = 5;
+    public static final int PROFONDEUR_MAX = 4;
 
     private boolean myTurn;
     private int profondeur;

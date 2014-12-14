@@ -1,7 +1,6 @@
 package structure;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +41,6 @@ public class Plateau {
      * @param width
      */
     public Plateau(int height, int width) {
-        if (height < DEFAULT_HEIGHT || width < DEFAULT_WIDTH) {
-            throw new IllegalArgumentException("La taille minimale du tableau doit être de " + DEFAULT_HEIGHT + "x" + DEFAULT_WIDTH + ".");
-        }
         setHeight(height);
         setWidth(width);
         initialisation(height, width);
@@ -125,11 +121,12 @@ public class Plateau {
      */
     public int casesAvailable(Player player) {
         List<Position> positions = new ArrayList<>();
-        Case opponent = null;
+        char me = player.getC().toString().charAt(0);
+        char opponent;
         if (player.getC() instanceof CaseBlanche) {
-            opponent = new CaseNoire();
+            opponent = new CaseNoire().toString().charAt(0);
         } else {
-            opponent = new CaseBlanche();
+            opponent = new CaseBlanche().toString().charAt(0);
         }
         //Parcours de toutes les lignes
         for (int i = 1; i <= height; i++) {
@@ -137,7 +134,7 @@ public class Plateau {
             for (int j = 1; j <= width; j++) {
                 ligne += cases.get(new Position(i, j)).toString();
             }
-            positions.addAll(match(ligne, new Position(i, 1), player.getC().toString().charAt(0), opponent.toString().charAt(0), 0, 1));
+            positions.addAll(match(ligne, new Position(i, 1), me, opponent, 0, 1));
         }
         //Parcours de toutes les colonnes
         for (int i = 1; i <= width; i++) {
@@ -145,35 +142,35 @@ public class Plateau {
             for (int j = 1; j <= height; j++) {
                 colonne += cases.get(new Position(j, i)).toString();
             }
-            positions.addAll(match(colonne, new Position(1, i), player.getC().toString().charAt(0), opponent.toString().charAt(0), 1, 0));
+            positions.addAll(match(colonne, new Position(1, i), me, opponent, 1, 0));
         }
-        //Parcours de toutes les diagonales droite->gauche
+        //Parcours de toutes les diagonales gauche -> droite
         String diagonale;
-        int i = 1, j = 3, x, y;
-        while (i < height - 1) {
-            diagonale = "";
-            for (int k = i, l = j; k <= height && l > 0; k++, l--) {
-                diagonale += cases.get(new Position(k, l));
-            }
-            positions.addAll(match(diagonale, new Position(i, j), player.getC().toString().charAt(0), opponent.toString().charAt(0), 1, -1));
-            if (j < width) {
-                j++;
-            } else if (j == width) {
-                i++;
-            }
-        }
-        //Parcours de toutes les diagonales gauche->droite
-        i = 1;
-        j = width - 2;
+        int i = 1, j = width - 2, x, y;
         while (i < height - 1) {
             diagonale = "";
             for (int k = i, l = j; k <= height && l <= width; k++, l++) {
                 diagonale += cases.get(new Position(k, l));
             }
-            positions.addAll(match(diagonale, new Position(i, j), player.getC().toString().charAt(0), opponent.toString().charAt(0), 1, 1));
+            positions.addAll(match(diagonale, new Position(i, j), me, opponent, 1, 1));
             if (j > 1) {
                 j--;
             } else if (j == 1) {
+                i++;
+            }
+        }
+        //Parcours de toutes les diagonales droite -> gauche
+        i = 1;
+        j = 3;
+        while (i < height - 1) {
+            diagonale = "";
+            for (int k = i, l = j; k <= height && l > 0; k++, l--) {
+                diagonale += cases.get(new Position(k, l));
+            }
+            positions.addAll(match(diagonale, new Position(i, j), me, opponent, 1, -1));
+            if (j < width) {
+                j++;
+            } else if (j == width) {
                 i++;
             }
         }
@@ -238,115 +235,106 @@ public class Plateau {
      *
      * @param p
      * @param player
+     * @return
      */
     public int capture(Position p, Player player) {
-        if (!cases.get(p).getClass().equals(new CaseDisponible().getClass())) {
+        if (!cases.get(p).getClass().equals(CaseDisponible.class)) {
             return 0;
         }
-        Map<Position, Case> map;
+        List<Position> liste;
         int nbCapture = 1;
-        Case opponent;
+        char me = player.getC().toString().charAt(0);
+        char opponent;
         if (player.getC() instanceof CaseBlanche) {
-            opponent = new CaseNoire();
+            opponent = new CaseNoire().toString().charAt(0);
         } else {
-            opponent = new CaseBlanche();
+            opponent = new CaseBlanche().toString().charAt(0);
         }
         cases.put(p, player.getC());
         clearAvailables();
         // Capture de la ligne
-        String ligne = "", colonne = "";
-        for (int i = 1; i <= width; i++) {
-            ligne += cases.get(new Position(p.getX(), i));
+        liste = calculCapture(new Position(p.getX(), p.getY() + 1), me, opponent, 0, 1);
+        if (liste != null) {
+            positionsToCases(liste, player.getC());
+            nbCapture += liste.size();
         }
-        map = captureLeftToRight(p.getY(), ligne, opponent, p, player.getC(), true);
-        if (map != null) {
-            cases.putAll(map);
-            nbCapture += map.size();
-        }
-        map = captureRightToLeft(p.getY() - 2, ligne, opponent, p, player.getC(), true);
-        if (map != null) {
-            cases.putAll(map);
-            nbCapture += map.size();
+        liste = calculCapture(new Position(p.getX(), p.getY() - 1), me, opponent, 0, -1);
+        if (liste != null) {
+            positionsToCases(liste, player.getC());
+            nbCapture += liste.size();
         }
         // Capture de la colonne
-        for (int i = 1; i <= height; i++) {
-            colonne += cases.get(new Position(i, p.getY()));
+        liste = calculCapture(new Position(p.getX() + 1, p.getY()), me, opponent, 1, 0);
+        if (liste != null) {
+            positionsToCases(liste, player.getC());
+            nbCapture += liste.size();
         }
-        map = captureLeftToRight(p.getX(), colonne, opponent, p, player.getC(), false);
-        if (map != null) {
-            cases.putAll(map);
-            nbCapture += map.size();
+        liste = calculCapture(new Position(p.getX() - 1, p.getY()), me, opponent, -1, 0);
+        if (liste != null) {
+            positionsToCases(liste, player.getC());
+            nbCapture += liste.size();
         }
-        map = captureRightToLeft(p.getX() - 2, colonne, opponent, p, player.getC(), false);
-        if (map != null) {
-            cases.putAll(map);
-            nbCapture += map.size();
+        // Capture de la diagonale gauche -> droite
+        liste = calculCapture(new Position(p.getX() + 1, p.getY() + 1), me, opponent, 1, 1);
+        if (liste != null) {
+            positionsToCases(liste, player.getC());
+            nbCapture += liste.size();
+        }
+        liste = calculCapture(new Position(p.getX() - 1, p.getY() - 1), me, opponent, -1, -1);
+        if (liste != null) {
+            positionsToCases(liste, player.getC());
+            nbCapture += liste.size();
+        }
+        // Capture de la diagonale droite -> gauche
+        liste = calculCapture(new Position(p.getX() + 1, p.getY() - 1), me, opponent, 1, -1);
+        if (liste != null) {
+            positionsToCases(liste, player.getC());
+            nbCapture += liste.size();
+        }
+        liste = calculCapture(new Position(p.getX() - 1, p.getY() + 1), me, opponent, -1, 1);
+        if (liste != null) {
+            positionsToCases(liste, player.getC());
+            nbCapture += liste.size();
         }
         return nbCapture;
     }
 
     /**
-     * Retourne les cases capturables de la gauche vers la droite
+     * Calcul les capture possibles
      *
-     * @param i
-     * @param analyse
-     * @param opponent
      * @param p
-     * @param c
-     * @param ligne
+     * @param me
+     * @param opponent
+     * @param x
+     * @param y
      * @return
      */
-    private Map<Position, Case> captureLeftToRight(int i, String analyse, Case opponent, Position p, Case c, boolean ligne) {
-        if (i >= analyse.length()) {
+    private List<Position> calculCapture(Position p, char me, char opponent, int x, int y) {
+        if (p.getX() < 1 || p.getX() > width || p.getY() < 1 || p.getY() > height) {
             return null;
-        } else {
-            Map<Position, Case> map;
-            if (analyse.charAt(i) == c.toString().charAt(0)) {
-                map = new HashMap<>();
-                return map;
-            } else {
-                map = captureLeftToRight(i + 1, analyse, opponent, p, c, ligne);
-                if (analyse.charAt(i) == opponent.toString().charAt(0) && map != null) {
-                    if (ligne) {
-                        map.put(new Position(p.getX(), i + 1), c);
-                    } else {
-                        map.put(new Position(i + 1, p.getY()), c);
-                    }
-                }
-            }
-            return map;
         }
+        List<Position> liste = null;
+        if (cases.get(p).toString().charAt(0) == me) {
+            liste = new ArrayList<>();
+            return liste;
+        } else if (cases.get(p).toString().charAt(0) == opponent) {
+            liste = calculCapture(new Position(p.getX() + x, p.getY() + y), me, opponent, x, y);
+            if (liste != null) {
+                liste.add(p);
+            }
+        }
+        return liste;
     }
 
     /**
-     * Retourne les cases capturables de la droite vers la gauche
+     * Ajoute la liste de positions dans le plateau avec la case correspondante
      *
-     * @param i
-     * @param analyse
-     * @param opponent
-     * @param p
-     * @param c
-     * @param ligne
-     * @return
+     * @param liste
+     * @param player
      */
-    private Map<Position, Case> captureRightToLeft(int i, String analyse, Case opponent, Position p, Case c, boolean ligne) {
-        if (i < 0) {
-            return null;
-        } else {
-            Map<Position, Case> map;
-            if (analyse.charAt(i) == c.toString().charAt(0)) {
-                map = new HashMap<>();
-            } else {
-                map = captureRightToLeft(i - 1, analyse, opponent, p, c, ligne);
-                if (analyse.charAt(i) == opponent.toString().charAt(0) && map != null) {
-                    if (ligne) {
-                        map.put(new Position(p.getX(), i + 1), c);
-                    } else {
-                        map.put(new Position(i + 1, p.getY()), c);
-                    }
-                }
-            }
-            return map;
+    private void positionsToCases(List<Position> liste, Case player) {
+        for (Position element : liste) {
+            cases.put(element, player);
         }
     }
 
@@ -367,6 +355,9 @@ public class Plateau {
     }
 
     private void setHeight(int height) {
+        if (height < DEFAULT_HEIGHT) {
+            throw new IllegalArgumentException("La hauteur minimale du plateau doit être de " + DEFAULT_HEIGHT);
+        }
         this.height = height;
     }
 
@@ -375,6 +366,9 @@ public class Plateau {
     }
 
     private void setWidth(int width) {
+        if (width < DEFAULT_WIDTH) {
+            throw new IllegalArgumentException("La largeur minimale du plateau doit être de " + DEFAULT_WIDTH);
+        }
         this.width = width;
     }
 

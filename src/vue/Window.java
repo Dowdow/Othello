@@ -49,7 +49,6 @@ public class Window extends JFrame implements Observer, ActionListener {
     private JMenuItem stop;
     private JMenu boardMenu;
     private JMenuItem boardParameters;
-    private JMenu playerMenu;
     private JMenu player1;
     private JMenu player2;
     private JPanel pGame;
@@ -120,15 +119,12 @@ public class Window extends JFrame implements Observer, ActionListener {
         boardParameters = createJMenuItem("Paramètres", "settings", true);
         boardMenu.add(boardParameters);
 
-        playerMenu = new JMenu("Joueurs");
-        playerMenu.add(player1);
-        playerMenu.add(player2);
-
         menuBar = new JMenuBar();
         menuBar.add(fileMenu);
         menuBar.add(gameMenu);
         menuBar.add(boardMenu);
-        menuBar.add(playerMenu);
+        menuBar.add(player1);
+        menuBar.add(player2);
     }
 
     /**
@@ -211,14 +207,16 @@ public class Window extends JFrame implements Observer, ActionListener {
                     start.setEnabled(false);
                     stop.setEnabled(true);
                     boardMenu.setEnabled(false);
-                    playerMenu.setEnabled(false);
+                    player1.setEnabled(false);
+                    player2.setEnabled(false);
                     break;
                 case "stop":
                     manager.stop();
                     start.setEnabled(true);
                     stop.setEnabled(false);
                     boardMenu.setEnabled(true);
-                    playerMenu.setEnabled(true);
+                    player1.setEnabled(true);
+                    player2.setEnabled(true);
                     logs.setText("");
                     break;
                 case "settings":
