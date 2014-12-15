@@ -310,7 +310,7 @@ public class Plateau {
      * @return
      */
     private List<Position> calculCapture(Position p, char me, char opponent, int x, int y) {
-        if (p.getX() < 1 || p.getX() > width || p.getY() < 1 || p.getY() > height) {
+        if (p.getX() < 1 || p.getX() > height || p.getY() < 1 || p.getY() > width) {
             return null;
         }
         List<Position> liste = null;
